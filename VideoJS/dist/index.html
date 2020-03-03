@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+
+ <html>
+<head>
+  <title></title>
+  <link href="https://vjs.zencdn.net/7.6.6/video-js.css" rel="stylesheet">
+  
+  <!-- <link href="logo-overlay.css" rel="stylesheet">  -->
+  <style type="text/css">
+    body{
+      margin: 0;
+      overflow: hidden ;
+    }
+  </style>
+<script type='text/javascript'>
+function getQueryVariable(variable)
+{
+var query = window.location.search.substring(1);
+var vars = query.split("&");
+for (var i=0;i<vars.length;i++) {
+var pair = vars[i].split("=");
+if(pair[0] == variable){return pair[1];}
+       }
+return(false);
+}
+var getUrl = window.location.host;
+var thehost = getUrl.split(":8889");
+var host = thehost.join('');
+var rtmp = getUrl.split(".cloud.influxis.com:8889");
+var rtmpid = rtmp.join("");
+var container='video';
+var width="100%";
+var height="VH";
+var aspect="16:9"; 
+//This section calculates actual sizes for player when using non-responsive elements.
+var multiplier=aspect.split(":");
+var fixedwidth = Math.floor(window.innerWidth*width.split("%")[0]/100);
+var fixedheight = Math.floor(window.innerWidth*multiplier[1]/multiplier[0]*width.split("%")[0]/117);
+console.log ('Size: '+width+', '+aspect+' ('+fixedwidth+' x '+fixedheight+')');
+</script>
+</head>
+<body onload="init()">  
+  <video id="video" class="video-js vjs-default-skin" autostart playsinline allowfullscreen >
+    <p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
+  </video>
+<script>
+   
+    function init(){
+    var path = host;
+	var app = getQueryVariable("a");
+	if (app =="")app = rtmpid + "_vod";
+	//FOR Videos Hosted in folders HTTPcontent
+	var folder = getQueryVariable("f");
+	//For Videos in Http, Source or Managed
+	var location = getQueryVariable("l");
+	if (location=="") location="Managed";
+	if (location ==+"")location="Managed"|| profile == "_h264_main_l31_1500k_640p_aac_96k";
+    //For Videos in Managed each have a different Profile!
+	var profile="_h264_main_l31_1500k_640p_aac_96k";
+	var vid =  getQueryVariable("id");
+    var vid_esc = decodeURI(vid)+profile;
+	if (location=="Source") vid_esc = decodeURI(vid);
+	if (location=="Http") vid_esc = decodeURI(vid);
+    var img =  getQueryVariable("img");
+    var start =  getQueryVariable("s") != "0" ? false : true;
+	var http = "https://" + path + "/" + app + "/_definst_/"+ location +"Content/" + vid_esc +  ".mp4/playlist.m3u8";
+	if (app ==="live") {
+	vid_esc = decodeURI(vid);
+    http = "https://" + path + "/" +rtmpid + "_"+ app + "/_definst_/" + vid_esc +  "/playlist.m3u8";
+    } else {
+    app = rtmpid + "_vod";
+    }
+    //var http = "https://" + path + "/" + app + "/_definst_/"+ location +"Content/" + vid_esc +  ".mp4/playlist.m3u8";
+	if (location ==="Http") http = "https://" + path + "/" + app + "/_definst_/"+ location +"Content/" + folder + "/" + vid_esc +  ".mp4/playlist.m3u8";
+	
+    alert(http);
+    var SRC_CONFIG = [
+   { type: "application/vnd.apple.mpegurl", src: http },     
+    ];    
+    var SETUP_CONFIG = {
+      controls: true, 
+      autoplay: start, 
+      preload: "auto",
+      poster: img ,
+      loop: false,
+      width: fixedwidth,
+      height: fixedheight,     
+      techOrder: [ "html5" ],
+      src: SRC_CONFIG
+    };
+    var myPlayer = videojs("video", SETUP_CONFIG , function(e){
+      this.on('loadedmetadata', function(){ console.log("loadedmetadata"); });
+    });
+    myPlayer.src(SRC_CONFIG);
+    myPlayer.on('error', function(e){ 
+                        console.log("error", e);                
+                        }); 					
+				
+  }
+  function getURLParameter(name) {
+     return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null
+  }
+</script>
+<script src="https://vjs.zencdn.net/7.6.6/video.js"></script>
+<script src="https://vjs.zencdn.net/ie8/1.1.2/videojs-ie8.min.js"></script>
+
+}
+</script>
+</body>
+</html>
